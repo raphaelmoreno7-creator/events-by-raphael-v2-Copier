@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6f8">
+  <title>EVENTS by Raphaël</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./config.js"></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="EVENTS by Raphaël, accueil">
+      <span class="brand-mark">E</span>
+      <span>EVENTS <small>by Raphaël</small></span>
+    </a>
+    <nav class="top-actions">
+      <button class="btn btn-quiet hidden" id="logoutBtn">Déconnexion</button>
+      <a class="btn btn-quiet" href="#admin">Administration</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="homeView" class="home-shell">
+      <div class="hero">
+        <div class="eyebrow">INVITATIONS & ÉVÉNEMENTS</div>
+        <h1>Les beaux moments<br><span>commencent ici.</span></h1>
+        <p>Un espace élégant pour découvrir les invitations et répondre simplement.</p>
+        <a class="btn btn-primary" href="#admin">Accéder à l'administration</a>
+      </div>
+      <div id="publicEventList" class="public-grid" aria-live="polite">
+        <div class="loading-card">Chargement des invitations…</div>
+      </div>
+    </section>
+
+    <section id="invitationView" class="invitation-shell hidden">
+      <button class="text-button" id="backHomeBtn">← Retour aux invitations</button>
+      <article id="invitationCard" class="invitation-card">
+        <div id="invitationCover" class="invitation-cover">
+          <div class="eyebrow" id="inviteEyebrow">VOUS ÊTES INVITÉ(E)</div>
+          <h1 id="inviteTitle">Votre événement</h1>
+          <p id="inviteOrganizer" class="invite-organizer"></p>
+        </div>
+        <div class="invitation-content">
+          <div class="event-facts">
+            <div><span>Date</span><strong id="inviteDate">—</strong></div>
+            <div><span>Heure</span><strong id="inviteTime">—</strong></div>
+            <div><span>Lieu</span><strong id="inviteLocation">—</strong></div>
+          </div>
+          <p id="inviteDescription" class="invite-description"></p>
+          <p id="inviteExtra" class="muted"></p>
+          <section class="rsvp-panel">
+            <div class="section-kicker">VOTRE RÉPONSE</div>
+            <h2>Votre présence</h2>
+            <p class="muted">Merci de compléter ce formulaire pour confirmer votre réponse.</p>
+            <form id="rsvpForm">
+              <input type="hidden" id="rsvpEventId">
+              <div class="form-grid">
+                <label>Prénom et nom
+                  <input id="guestName" maxlength="100" required autocomplete="name" placeholder="Votre nom complet">
+                </label>
+                <label>Votre réponse
+                  <select id="attendance" required>
+                    <option value="present">Je serai présent(e)</option>
+                    <option value="absent">Je ne pourrai pas venir</option>
+                  </select>
+                </label>
+                <label id="partySizeWrap">Nombre de personnes
+                  <input id="partySize" type="number" min="1" max="20" value="1" required>
+                </label>
+                <label class="full">Un petit message (facultatif)
+                  <textarea id="guestMessage" rows="3" maxlength="1000" placeholder="Votre message…"></textarea>
+                </label>
+              </div>
+              <button class="btn btn-primary btn-wide" id="rsvpSubmit" type="submit">Envoyer ma réponse</button>
+              <p id="rsvpFeedback" class="feedback" role="status"></p>
+            </form>
+          </section>
+        </div>
+      </article>
+    </section>
+
+    <section id="adminView" class="admin-shell hidden">
+      <div id="loginPanel" class="login-card">
+        <div class="section-kicker">ESPACE PRIVÉ</div>
+        <h1>Administration</h1>
+        <p class="muted">Connecte-toi pour gérer tes événements et leurs invités.</p>
+        <form id="loginForm" class="stack-form">
+          <label>Adresse e-mail<input id="loginEmail" type="email" autocomplete="username" required></label>
+          <label>Mot de passe<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+          <button class="btn btn-primary btn-wide" type="submit">Se connecter</button>
+          <button class="text-button" id="forgotPasswordBtn" type="button">Mot de passe oublié ?</button>
+          <p id="loginFeedback" class="feedback" role="status"></p>
+        </form>
+      </div>
+
+      <div id="adminDashboard" class="hidden">
+        <div class="admin-heading">
+          <div><div class="section-kicker">ESPACE ADMINISTRATEUR</div><h1>Ton tableau de bord</h1><p class="muted">Gère tes événements, tes invitations et les réponses.</p></div>
+          <button class="btn btn-primary" id="newEventBtn">＋ Créer un événement</button>
+        </div>
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card"><span>Événements</span><strong id="statEvents">0</strong></div>
+          <div class="stat-card"><span>Invités</span><strong id="statInvitees">0</strong></div>
+          <div class="stat-card"><span>Réponses reçues</span><strong id="statResponses">0</strong></div>
+          <div class="stat-card"><span>Participants annoncés</span><strong id="statAttendees">0</strong></div>
+        </div>
+
+        <div class="admin-tabs" role="tablist">
+          <button class="tab active" data-tab="events">Événements</button>
+          <button class="tab" data-tab="guests">Invités</button>
+          <button class="tab" data-tab="responses">Réponses</button>
+        </div>
+
+        <section id="tab-events" class="tab-panel">
+          <div class="panel-heading"><h2>Mes événements</h2><input id="eventSearch" class="search-input" placeholder="Rechercher un événement…"></div>
+          <div id="adminEvents" class="admin-event-list"></div>
+        </section>
+        <section id="tab-guests" class="tab-panel hidden">
+          <div class="panel-heading"><h2>Liste des invités</h2><select id="guestEventFilter"></select></div>
+          <form id="addGuestForm" class="inline-form">
+            <input id="newGuestName" placeholder="Prénom et nom de l'invité" maxlength="100" required>
+            <button class="btn btn-primary" type="submit">Ajouter</button>
+          </form>
+          <div id="adminGuests" class="table-wrap"></div>
+        </section>
+        <section id="tab-responses" class="tab-panel hidden">
+          <div class="panel-heading"><h2>Réponses reçues</h2><div class="filters">
+            <select id="responseEventFilter"></select>
+            <select id="responseStatusFilter"><option value="all">Toutes les réponses</option><option value="present">Présents</option><option value="absent">Absents</option></select>
+            <input id="responseSearch" class="search-input" placeholder="Rechercher un nom…">
+          </div></div>
+          <div id="adminResponses" class="table-wrap"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="eventDialog" class="modal">
+    <form id="eventForm" method="dialog">
+      <div class="modal-heading"><div><div class="section-kicker">PERSONNALISATION</div><h2 id="eventDialogTitle">Créer un événement</h2></div><button type="button" class="icon-button" id="closeEventDialog" aria-label="Fermer">×</button></div>
+      <input type="hidden" id="editEventId">
+      <div class="form-grid">
+        <label>Nom de l'événement<input id="eventTitle" maxlength="120" required placeholder="Ex. Anniversaire"></label>
+        <label>Organisateur<input id="eventOrganizer" maxlength="120" required placeholder="Ex. Raphaël"></label>
+        <label>Date<input id="eventDate" type="date" required></label>
+        <label>Heure<input id="eventTime" type="time" required></label>
+        <label class="full">Lieu affiché<input id="eventLocation" maxlength="180" placeholder="Ex. Clermont-Ferrand — adresse communiquée individuellement"></label>
+        <label class="full">Description<textarea id="eventDescription" rows="3" maxlength="1500" placeholder="Présente ton événement…"></textarea></label>
+        <label class="full">Informations complémentaires<textarea id="eventExtra" rows="2" maxlength="1000" placeholder="Tenue, horaires, précisions…"></textarea></label>
+      </div>
+      <div class="theme-editor">
+        <div class="theme-title"><div><div class="section-kicker">IDENTITÉ VISUELLE</div><h3>Thème de l'événement</h3></div><span class="muted small">Chaque événement a ses propres couleurs.</span></div>
+        <label>Choisir une ambiance
+          <select id="themePreset">
+            <option value="custom">Personnalisé</option>
+            <option value="christmas">Noël</option>
+            <option value="halloween">Halloween</option>
+            <option value="spring">Printemps</option>
+            <option value="summer">Été</option>
+            <option value="autumn">Automne</option>
+            <option value="elegant">Élégance</option>
+            <option value="birthday">Anniversaire festif</option>
+          </select>
+        </label>
+        <div class="color-grid">
+          <label>Couleur principale<input type="color" id="themePrimary" value="#9fc8e8"></label>
+          <label>Couleur secondaire<input type="color" id="themeSecondary" value="#e7f0f7"></label>
+          <label>Couleur d'accent<input type="color" id="themeAccent" value="#c6a56a"></label>
+          <label>Couleur du texte<input type="color" id="themeText" value="#253447"></label>
+        </div>
+        <div class="theme-preview" id="themePreview"><span>APERÇU DE L'INVITATION</span><strong id="previewTitle">Votre événement</strong><small>Une ambiance à votre image</small></div>
+      </div>
+      <label>Publication
+        <select id="eventStatus"><option value="draft">Brouillon</option><option value="published">Publié</option><option value="archived">Archivé</option></select>
+      </label>
+      <p id="eventFeedback" class="feedback"></p>
+      <div class="modal-actions"><button type="button" class="btn btn-quiet" id="cancelEventBtn">Annuler</button><button type="submit" class="btn btn-primary">Enregistrer l'événement</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="newPasswordDialog" class="modal small-modal">
+    <form id="newPasswordForm" method="dialog">
+      <div class="modal-heading"><h2>Choisir un nouveau mot de passe</h2></div>
+      <p class="muted">Saisis ton nouveau mot de passe pour ton compte administrateur.</p>
+      <label>Nouveau mot de passe<input id="newPassword" type="password" minlength="8" autocomplete="new-password" required></label>
+      <p id="newPasswordFeedback" class="feedback"></p>
+      <button class="btn btn-primary btn-wide" type="submit">Enregistrer le mot de passe</button>
+    </form>
+  </dialog>
+
+  <dialog id="resetDialog" class="modal small-modal">
+    <form id="resetForm" method="dialog">
+      <div class="modal-heading"><h2>Réinitialiser le mot de passe</h2><button type="button" class="icon-button" id="closeResetDialog">×</button></div>
+      <p class="muted">Un lien de réinitialisation sera envoyé à ton adresse e-mail de connexion.</p>
+      <label>Adresse e-mail<input id="resetEmail" type="email" required></label>
+      <p id="resetFeedback" class="feedback"></p>
+      <button class="btn btn-primary btn-wide" type="submit">Envoyer le lien</button>
+    </form>
+  </dialog>
+
+  <footer class="footer"><span>EVENTS by Raphaël</span><span>Des événements, des souvenirs.</span></footer>
+  <div id="toast" class="toast" role="status"></div>
+</body>
+</html>
