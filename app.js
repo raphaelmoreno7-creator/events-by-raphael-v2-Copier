@@ -179,7 +179,19 @@ $("mapAddressLink").href=exactAddress
     ev.preventDefault();
     const id=$("editEventId").value;
     const theme={preset:$("themePreset").value,primary:$("themePrimary").value,secondary:$("themeSecondary").value,accent:$("themeAccent").value,text:$("themeText").value};
-    const payload={title:$("eventTitle").value.trim(),organizer:$("eventOrganizer").value.trim()||"Raphaël",event_date:$("eventDate").value,event_time:$("eventTime").value||null,location_label:exact_address:$("eventExactAddress").value.trim()||null,$("eventLocation").value.trim()||null,description:$("eventDescription").value.trim()||null,extra_info:$("eventExtra").value.trim()||null,theme:JSON.stringify(theme),status:$("eventStatus").value,updated_at:new Date().toISOString()};
+   const payload={
+  title:$("eventTitle").value.trim(),
+  organizer:$("eventOrganizer").value.trim()||"Raphaël",
+  event_date:$("eventDate").value,
+  event_time:$("eventTime").value||null,
+  location_label:$("eventLocation").value.trim()||null,
+  exact_address:$("eventExactAddress").value.trim()||null,
+  description:$("eventDescription").value.trim()||null,
+  extra_info:$("eventExtra").value.trim()||null,
+  theme:JSON.stringify(theme),
+  status:$("eventStatus").value,
+  updated_at:new Date().toISOString()
+};
     const result=id?await db.from("events").update(payload).eq("id",id):await db.from("events").insert(payload);
     if(result.error){setFeedback("eventFeedback","Enregistrement impossible : "+result.error.message);return;}
     $("eventDialog").close();await refreshAdmin();toast("Événement enregistré.");
