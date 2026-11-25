@@ -9,3 +9,67 @@
 .inline-form{display:flex;gap:8px;margin:0 0 15px}.inline-form input{flex:1}.table-wrap{overflow:auto;background:white;border:1px solid var(--line);border-radius:15px}table{border-collapse:collapse;width:100%;min-width:600px}th,td{text-align:left;padding:13px 15px;border-bottom:1px solid var(--line);font-size:13px}th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:#fafbfc}tr:last-child td{border-bottom:0}.filters{display:flex;gap:8px;flex-wrap:wrap}.login-card{max-width:440px;margin:40px auto;background:white;padding:34px;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.stack-form{display:grid;gap:15px;margin-top:22px}.feedback{font-size:13px;min-height:18px;color:#a34444}.feedback.success{color:#28734b}
 .modal{border:0;border-radius:22px;padding:0;width:min(720px,calc(100% - 24px));max-height:90vh;box-shadow:0 30px 90px rgba(20,30,45,.25)}.modal::backdrop{background:rgba(20,28,40,.5);backdrop-filter:blur(4px)}.modal form{padding:26px;overflow:auto;max-height:90vh}.small-modal{width:min(440px,calc(100% - 24px))}.modal-heading{margin-bottom:22px}.modal-heading h2{font:800 24px Manrope;margin:6px 0}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}.form-grid .full{grid-column:1/-1}.theme-editor{background:#f7f8fa;border:1px solid var(--line);padding:18px;border-radius:16px;margin:18px 0}.theme-title{margin-bottom:16px}.theme-title h3{font:700 18px Manrope;margin:5px 0}.color-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}.color-grid input[type=color]{height:43px;padding:4px;cursor:pointer}.theme-preview{min-height:120px;border-radius:13px;margin-top:15px;padding:20px;display:flex;flex-direction:column;justify-content:center;gap:7px;background:linear-gradient(120deg,var(--preview-primary),var(--preview-secondary));color:var(--preview-text)}.theme-preview span{font-size:9px;letter-spacing:.15em;font-weight:800}.theme-preview strong{font:800 23px Manrope}.theme-preview small{opacity:.8}.modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:12px}.footer{display:flex;justify-content:space-between;padding:25px clamp(20px,5vw,76px);border-top:1px solid var(--line);font-size:12px;color:var(--muted)}.footer span:first-child{font-weight:800;letter-spacing:.1em;color:var(--ink)}.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);opacity:0;background:#202735;color:white;padding:12px 18px;border-radius:12px;z-index:30;transition:.25s;pointer-events:none;max-width:calc(100% - 30px);text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
 @media(max-width:720px){.topbar{height:64px;padding:0 16px}.home-shell,.admin-shell{padding:28px 15px 55px}.hero{padding:42px 24px}.admin-heading{align-items:flex-start;flex-direction:column}.stats-grid{grid-template-columns:repeat(2,1fr)}.stat-card{padding:15px}.stat-card strong{font-size:25px}.event-facts{grid-template-columns:1fr;gap:16px}.admin-event{align-items:flex-start;flex-wrap:wrap}.event-actions{width:100%}.panel-heading{align-items:flex-start;flex-direction:column}.search-input{width:100%}.form-grid{grid-template-columns:1fr}.form-grid .full{grid-column:auto}.color-grid{grid-template-columns:repeat(2,1fr)}.theme-title{align-items:flex-start;flex-direction:column}.filters{width:100%}.filters>*{flex:1}.footer{gap:12px;flex-direction:column}.invitation-cover{min-height:230px}.inline-form{flex-direction:column}.modal form{padding:20px}}
+/* Adresse exacte sur l'invitation */
+.exact-address-block{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:16px;
+  margin-top:18px;
+  border:1px solid var(--event-primary);
+  border-radius:14px;
+  background:var(--event-secondary);
+}
+
+.exact-address-block span{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:var(--muted);
+}
+
+.exact-address-block strong{
+  overflow-wrap:anywhere;
+  line-height:1.5;
+}
+
+.exact-address-block a{
+  color:var(--primary);
+  font-weight:700;
+  font-size:13px;
+}
+
+/* Amélioration des actions administrateur */
+.mini-btn{
+  transition:background .2s,border-color .2s;
+}
+
+.mini-btn:hover{
+  background:#f0f3f7;
+  border-color:#cbd5df;
+}
+
+button:focus-visible,
+a:focus-visible{
+  outline:3px solid #8db6d5;
+  outline-offset:3px;
+}
+
+@media(max-width:480px){
+  .top-actions .btn{
+    padding:9px 11px;
+    font-size:12px;
+  }
+
+  .admin-event{
+    padding:13px;
+  }
+
+  .event-actions .mini-btn{
+    flex:1 1 auto;
+  }
+
+  .invitation-content{
+    padding:20px 15px;
+  }
+}
