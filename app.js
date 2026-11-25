@@ -94,9 +94,15 @@ $("mapAddressLink").href=exactAddress
   }
   function renderDashboard(){
     $("statEvents").textContent=state.events.length;
-    $("statInvitees").textContent=state.invitees.length;
-    $("statResponses").textContent=state.rsvps.length;
-    $("statAttendees").textContent=state.rsvps.filter(r=>r.attendance==="present").reduce((n,r)=>n+(Number(r.party_size)||1),0);
+$("statInvitees").textContent=state.invitees.length;
+$("statResponses").textContent=state.rsvps.length;
+
+$("statPresent").textContent=state.rsvps.filter(r=>r.attendance==="present").length;
+$("statAbsent").textContent=state.rsvps.filter(r=>r.attendance==="absent").length;
+
+$("statAttendees").textContent=state.rsvps
+  .filter(r=>r.attendance==="present")
+  .reduce((n,r)=>n+(Number(r.party_size)||1),0);
     renderEvents(); fillEventFilters(); renderGuests(); renderResponses();
   }
   function renderEvents(){
