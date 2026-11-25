@@ -34,16 +34,6 @@
     $(name).classList.remove("hidden");
     $("logoutBtn").classList.toggle("hidden",!(name==="adminView"&&state.session));
   }
-  async function loadPublicEvents() {
-    const {data,error}=await db.from("events").select("*").eq("status","published").order("event_date",{ascending:true});
-    const list=$("publicEventList");
-    if(error){list.innerHTML='<div class="empty-state">Impossible de charger les invitations pour le moment.</div>';return;}
-    if(!data?.length){list.innerHTML='<div class="empty-state">Aucune invitation publique pour le moment.</div>';return;}
-    list.innerHTML=data.map(e=>{
-      const t=parseTheme(e.theme);
-      return `<article class="public-event"><div class="public-event-cover" style="${themeVars(t)}"><div class="eyebrow">VOUS ÊTES INVITÉ(E)</div><h3>${escapeHtml(e.title)}</h3></div><div class="public-event-body"><strong>${escapeHtml(fmtDate(e.event_date))}</strong><p>${escapeHtml(e.location_label||"Lieu communiqué individuellement")}</p><a class="btn btn-primary" href="?event=${encodeURIComponent(e.id)}">Voir l'invitation</a></div></article>`;
-    }).join("");
-  }
   async function loadInvitation(id) {
     const {data:e,error}=await db.from("events").select("*").eq("id",id).eq("status","published").maybeSingle();
     if(error||!e){showView("homeView");toast("Cette invitation n'est pas disponible.");return;}
@@ -371,7 +361,7 @@ $("newPasswordForm").addEventListener("submit",updatePassword);
       showView("adminView");
       if(state.session)await enterAdmin();
       else showView("adminView");
-    } else {showView("homeView");await loadPublicEvents();}
+    } else {showView("homeView");}
     db.auth.onAuthStateChange((_event,session)=>{state.session=session;if(session&&location.hash==="#admin")enterAdmin();});
     if(location.hash==="#admin"&&!state.session){$("loginPanel").classList.remove("hidden");$("adminDashboard").classList.add("hidden");}
   }
