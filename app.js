@@ -55,6 +55,12 @@
     $("inviteDate").textContent=fmtDate(e.event_date);
     $("inviteTime").textContent=e.event_time?e.event_time.slice(0,5):"À préciser";
     $("inviteLocation").textContent=e.location_label||"Lieu communiqué individuellement";
+    const exactAddress=(e.exact_address||"").trim();
+$("exactAddressBlock").classList.toggle("hidden",!exactAddress);
+$("inviteExactAddress").textContent=exactAddress;
+$("mapAddressLink").href=exactAddress
+  ? "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(exactAddress)
+  : "#";
     $("inviteDescription").textContent=e.description||"";
     $("inviteExtra").textContent=e.extra_info||"";
     $("rsvpEventId").value=e.id;
@@ -106,10 +112,35 @@
     $("guestEventFilter").innerHTML=options;$("responseEventFilter").innerHTML=options;
   }
   function renderGuests(){
-    const id=$("guestEventFilter").value;
-    const rows=state.invitees.filter(g=>id==="all"||g.event_id===id);
-    $("adminGuests").innerHTML=rows.length?`<table><thead><tr><th>Invité</th><th>Événement</th><th>Statut</th><th>Action</th></tr></thead><tbody>${rows.map(g=>`<tr><td>${escapeHtml(g.name)}</td><td>${escapeHtml(getEvent(g.event_id)?.title||"Événement supprimé")}</td><td>${escapeHtml(g.status||"invité")}</td><td><button class="mini-btn danger" data-action="deleteGuest" data-id="${g.id}">Supprimer</button></td></tr>`).join("")}</tbody></table>`:'<div class="empty-state">Aucun invité dans cette liste.</div>';
-  }
+  const id=$("guestEventFilter").value;
+  const rows=state.invitees.filter(g=>id==="all"||g.event_id===id);
+
+  $("adminGuests").innerHTML=rows.length
+    ? `<table>
+        <thead>
+          <tr>
+            <th>Invité</th>
+            <th>Événement</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(g=>`
+            <tr>
+              <td>${escapeHtml(g.name)}</td>
+              <td>${escapeHtml(getEvent(g.event_id)?.title||"Événement supprimé")}</td>
+              <td>${escapeHtml(g.status||"invité")}</td>
+              <td>
+                <button class="mini-btn" data-action="editGuest" data-id="${g.id}">Modifier</button>
+                <button class="mini-btn danger" data-action="deleteGuest" data-id="${g.id}">Supprimer</button>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>`
+    : '<div class="empty-state">Aucun invité dans cette liste.</div>';
+}
   function renderResponses(){
     const eid=$("responseEventFilter").value, status=$("responseStatusFilter").value, q=$("responseSearch").value.toLowerCase();
     const rows=state.rsvps.filter(r=>(eid==="all"||r.event_id===eid)&&(status==="all"||r.attendance===status)&&r.guest_name.toLowerCase().includes(q));
@@ -129,6 +160,7 @@
     $("eventDate").value=event?.event_date||"";
     $("eventTime").value=event?.event_time?.slice(0,5)||"";
     $("eventLocation").value=event?.location_label||"";
+    $("eventExactAddress").value=event?.exact_address||"";
     $("eventDescription").value=event?.description||"";
     $("eventExtra").value=event?.extra_info||"";
     $("eventStatus").value=event?.status||"draft";
@@ -147,7 +179,7 @@
     ev.preventDefault();
     const id=$("editEventId").value;
     const theme={preset:$("themePreset").value,primary:$("themePrimary").value,secondary:$("themeSecondary").value,accent:$("themeAccent").value,text:$("themeText").value};
-    const payload={title:$("eventTitle").value.trim(),organizer:$("eventOrganizer").value.trim()||"Raphaël",event_date:$("eventDate").value,event_time:$("eventTime").value||null,location_label:$("eventLocation").value.trim()||null,description:$("eventDescription").value.trim()||null,extra_info:$("eventExtra").value.trim()||null,theme:JSON.stringify(theme),status:$("eventStatus").value,updated_at:new Date().toISOString()};
+    const payload={title:$("eventTitle").value.trim(),organizer:$("eventOrganizer").value.trim()||"Raphaël",event_date:$("eventDate").value,event_time:$("eventTime").value||null,location_label:exact_address:$("eventExactAddress").value.trim()||null,$("eventLocation").value.trim()||null,description:$("eventDescription").value.trim()||null,extra_info:$("eventExtra").value.trim()||null,theme:JSON.stringify(theme),status:$("eventStatus").value,updated_at:new Date().toISOString()};
     const result=id?await db.from("events").update(payload).eq("id",id):await db.from("events").insert(payload);
     if(result.error){setFeedback("eventFeedback","Enregistrement impossible : "+result.error.message);return;}
     $("eventDialog").close();await refreshAdmin();toast("Événement enregistré.");
@@ -179,6 +211,45 @@
     $("newGuestName").value="";await refreshAdmin();toast("Invité ajouté.");
   }
   async function handleTableAction(action,id){
+    if(action==="editGuest"){
+  const guest=state.invitees.find(g=>g.id===id);
+  if(!guest)return;
+
+  const name=prompt("Nom de l'invité :",guest.name);
+  if(name===null)return;
+  if(!name.trim()){
+    toast("Le nom ne peut pas être vide.");
+    return;
+  }
+
+  const status=prompt(
+    "Statut : pending, invited, confirmed ou declined",
+    guest.status||"pending"
+  );
+  if(status===null)return;
+
+  const allowed=["pending","invited","confirmed","declined"];
+  if(!allowed.includes(status.trim().toLowerCase())){
+    toast("Statut invalide.");
+    return;
+  }
+
+  const {error}=await db.from("invitees")
+    .update({
+      name:name.trim(),
+      status:status.trim().toLowerCase()
+    })
+    .eq("id",id);
+
+  if(error){
+    toast("Modification impossible : "+error.message);
+    return;
+  }
+
+  await refreshAdmin();
+  toast("Invité modifié.");
+  return;
+}
     if(action==="deleteGuest"){
       if(!confirm("Supprimer cet invité de la liste ?"))return;
       const {error}=await db.from("invitees").delete().eq("id",id);if(error){toast("Suppression impossible.");return;}await refreshAdmin();
