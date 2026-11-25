@@ -233,13 +233,27 @@
     setFeedback("resetFeedback","E-mail envoyé. Consulte ta boîte de réception.",true);
   }
   function bind(){
+    document.querySelectorAll('a[href="#admin"]').forEach(link=>{
+  link.addEventListener("click",async ev=>{
+    ev.preventDefault();
+    history.pushState({}, "", "#admin");
+    showView("adminView");
+    if(state.session){
+      await enterAdmin();
+    } else {
+      $("loginPanel").classList.remove("hidden");
+      $("adminDashboard").classList.add("hidden");
+    }
+  });
+});
     $("rsvpForm").addEventListener("submit",handleRsvp);
     $("backHomeBtn").onclick=()=>{history.pushState({}, "",location.pathname);showView("homeView");};
     $("attendance").onchange=()=>{$("partySizeWrap").classList.toggle("hidden",$("attendance").value==="absent");};
     $("loginForm").addEventListener("submit",login);
     $("logoutBtn").onclick=logout;
     $("forgotPasswordBtn").onclick=()=>{$("resetEmail").value=$("loginEmail").value;$("resetDialog").showModal();};
-    $("resetForm").addEventListener("submit",resetPassword);\n    $("newPasswordForm").addEventListener("submit",updatePassword);
+   $("resetForm").addEventListener("submit",resetPassword);
+$("newPasswordForm").addEventListener("submit",updatePassword);
     $("closeResetDialog").onclick=()=>$("resetDialog").close();
     $("newEventBtn").onclick=()=>openEventDialog();
     $("eventForm").addEventListener("submit",saveEvent);
