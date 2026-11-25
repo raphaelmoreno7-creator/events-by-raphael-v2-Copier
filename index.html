@@ -48,6 +48,12 @@
             <div><span>Date</span><strong id="inviteDate">—</strong></div>
             <div><span>Heure</span><strong id="inviteTime">—</strong></div>
             <div><span>Lieu</span><strong id="inviteLocation">—</strong></div>
+            <div id="exactAddressBlock" class="exact-address-block hidden">
+  <span>Adresse exacte</span>
+  <strong id="inviteExactAddress">—</strong>
+  <a id="mapAddressLink" href="#" target="_blank" rel="noopener">
+    Ouvrir l'itinéraire ↗
+  </a>
           </div>
           <p id="inviteDescription" class="invite-description"></p>
           <p id="inviteExtra" class="muted"></p>
@@ -148,6 +154,10 @@
         <label>Date<input id="eventDate" type="date" required></label>
         <label>Heure<input id="eventTime" type="time" required></label>
         <label class="full">Lieu affiché<input id="eventLocation" maxlength="180" placeholder="Ex. Clermont-Ferrand — adresse communiquée individuellement"></label>
+        <label class="full">Adresse exacte
+  <input id="eventExactAddress" maxlength="300" placeholder="Numéro, rue, code postal, ville…">
+  <small class="muted">Visible uniquement sur la page de l'invitation.</small>
+</label>
         <label class="full">Description<textarea id="eventDescription" rows="3" maxlength="1500" placeholder="Présente ton événement…"></textarea></label>
         <label class="full">Informations complémentaires<textarea id="eventExtra" rows="2" maxlength="1000" placeholder="Tenue, horaires, précisions…"></textarea></label>
       </div>
